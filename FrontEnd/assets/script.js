@@ -1,33 +1,99 @@
-async function fetchAndDisplayJSON() {
-    try {
-      const response = await fetch('127.0.0.1');
+JSONrecup();
 
-      if (!response.ok) {
-        throw new Error('La requête a échoué avec le statut ' + response.status);
-      }      const data = await response.json();
-      const container = document.querySelector('.gallery');
-      
+async function JSONrecup() {
+   try {
+      const response = await fetch('http://localhost:5678/api/works');
+      const data = await response.json();
+      Filters(data);
+      PopulateWorks(data);
+   }
+   catch (error) {
+      console.error('Erreur :', error);
+   }
 
-      data.forEach((item) => {
-        const figure = document.createElement('figure');
-        
-        const img = document.createElement('img');
-        img.src = item.imageURL; 
-        img.alt = item.title; 
-        
-        const figcaption = document.createElement('figcaption');
-        figcaption.textContent = item.title; 
-        
+}
 
-        figure.appendChild(img);
-        figure.appendChild(figcaption);
-        
-        container.appendChild(figure);
-      });
-    } catch (error) {
-      console.error('Une erreur s\'est produite :', error);
-    }
-  }
-  
-  //TODO changer tous les appels une fois connus
-  fetchAndDisplayJSON();
+function Filters(data) {
+
+   const filterParent = document.querySelector('#portfolio');
+   const gallery = document.querySelector('.gallery');
+
+   const filterContainer = document.createElement('div');
+
+   const filterTous = document.createElement('button');
+   filterTous.classList.add("filter");
+   filterTous.innerText = "Tous";
+
+   const filterObjects = document.createElement('button');
+   filterObjects.classList.add("filter");
+   filterObjects.innerText = "Objets";
+
+   const filterAppartements = document.createElement('button');
+   filterAppartements.classList.add("filter");
+   filterAppartements.innerText = "Appartements";
+
+   const filterHR = document.createElement('button');
+   filterHR.classList.add("filter");
+   filterHR.innerText = "Hôtels & Restaurants";
+
+   filterTous.addEventListener("click", function (){
+      PopulateWorks(data);
+   });
+   filterObjects.addEventListener("click", function (){
+      PopulateWorks(data, 1);
+   });
+   filterAppartements.addEventListener("click", function (){
+      PopulateWorks(data, 2);
+   });
+   filterHR.addEventListener("click", function (){
+      PopulateWorks(data, 3);
+   });
+
+   filterParent.appendChild(filterContainer); 
+   filterContainer.appendChild(filterTous);
+   filterContainer.appendChild(filterObjects);
+   filterContainer.appendChild(filterAppartements);
+   filterContainer.appendChild(filterHR);
+   filterContainer.appendChild(gallery);
+
+
+   console.log(document.body.innerHTML);
+}
+
+function PopulateWorks(data, filter) {
+   const container = document.querySelector('.gallery');
+   container.innerHTML = "";
+
+   let datafiltered = data;
+
+   if(filter != undefined){
+      datafiltered = data.filter(data => data.categoryId === filter);
+   }
+   
+   datafiltered.forEach((item) => {
+
+      const figure = document.createElement('figure');
+
+      const img = document.createElement('img');
+      img.src = item.imageUrl;
+      img.alt = item.title;
+
+      const figcaption = document.createElement('figcaption');
+      figcaption.textContent = item.title;
+
+      figure.appendChild(img);
+      figure.appendChild(figcaption);
+
+      container.appendChild(figure);
+   });
+}
+
+function Send(){
+
+   //exemple de post
+   fetch("/assets/jsp.json", {
+      method: "POST",                                 //protocole
+      headers: {"Content-Type" : "application/json"}, //format
+      body : '{"valeur": "info"}'                     //Charge Utile
+   });
+}
