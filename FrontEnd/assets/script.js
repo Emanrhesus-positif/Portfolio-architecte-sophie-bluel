@@ -91,7 +91,7 @@ function PopulateWorks(data, filter) {
 function Send(){
 
    //exemple de post
-   fetch("/assets/jsp.json", {
+   fetch("http://localhost:5678/api/works", {
       method: "POST",                                 //protocole
       headers: {"Content-Type" : "application/json"}, //format
       body : '{"valeur": "info"}'                     //Charge Utile
