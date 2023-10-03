@@ -204,7 +204,7 @@ footer nav ul {
 	background-color:white;
 	border-style: solid;
 }
-.filter .active {
+.filter.active {
     background-color: #1D6154;
     color: white;
 }

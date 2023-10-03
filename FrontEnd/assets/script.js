@@ -7,8 +7,7 @@ async function JSONrecup() {
       const data = await response.json();
       Filters(data);
       PopulateWorks(data);
-      PopulateLinks();
-      // console.log(document.body.innerHTML);
+      Login();
    }
    catch (error) {
       console.error('Erreur :', error);
@@ -109,7 +108,7 @@ function Send(){
    fetch("http://localhost:5678/api/works", {
       method: "POST",                                 //protocole
       headers: {"Content-Type" : "application/json"}, //format
-      body : '{"valeur": "info"}'                     //Charge Utile
+      body : JSON.stringify('{"valeur": "info"}')                     //Charge Utile
    });
 }
 
@@ -125,17 +124,26 @@ function AddPicture(){
 
 function Login() {
  //TODO renvoyer sur la page de login si non connecté / vérifier le token de connexion si deja connecté
-   let token = 1234;
-   if(token != 1234){
-
-
-   }
-   else{
-
-   }
+ 
 
 }
+function CreateWork(){
 
+}
+function DeleteWork(){
+
+}
+function IsConnected(){
+   try{
+      const test = localStorage.getItem("Soblutoken");
+
+   }
+   catch(error){
+
+   }
+   
+
+}
 // TODO bosser la gestion du dataset
 // html
 // <figure data-workid="1"></figure> //dataset
