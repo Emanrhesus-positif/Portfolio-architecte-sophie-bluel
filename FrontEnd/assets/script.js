@@ -1,13 +1,18 @@
-
-JSONrecup();
-
-async function JSONrecup() {
+IsConnected();
+ModalSuppressPhoto();
+async function JSONrecup(isConnected) {
    try {
       const response = await fetch('http://localhost:5678/api/works');
       const data = await response.json();
-      Filters(data);
-      PopulateWorks(data);
-      Login();
+      if (isConnected){
+         PopulateWorks(data);
+         userLevel();
+      }
+      else{
+         Filters(data);
+         PopulateWorks(data);
+      }
+
    }
    catch (error) {
       console.error('Erreur :', error);
@@ -17,25 +22,25 @@ async function JSONrecup() {
 
 function Filters(data) {
 
-   const filterParent = document.querySelector('#portfolio');
-   const gallery = document.querySelector('.gallery');
+   const filterParent = document.querySelector('#portfolio'); //parent
+   const gallery = document.querySelector('.gallery'); //conteneur
 
-   const filterContainer = document.createElement('div');
-   filterContainer.classList.add('filter-container');
+   const filterContainer = document.createElement('div'); //div des elements
+   filterContainer.classList.add('filter-container'); //pour le style
 
-   const filterTous = document.createElement('button');
+   const filterTous = document.createElement('button'); //bouton TOUS
    filterTous.classList.add("filter");
    filterTous.innerText = "Tous";
 
-   const filterObjects = document.createElement('button');
+   const filterObjects = document.createElement('button'); //bouton OBJETS
    filterObjects.classList.add("filter");
    filterObjects.innerText = "Objets";
 
-   const filterAppartements = document.createElement('button');
+   const filterAppartements = document.createElement('button'); //Bouton APPARTEMENTS
    filterAppartements.classList.add("filter");
    filterAppartements.innerText = "Appartements";
 
-   const filterHR = document.createElement('button');
+   const filterHR = document.createElement('button'); //bouton Hôtels et restaurants
    filterHR.classList.add("filter");
    filterHR.innerText = "Hôtels & Restaurants";
 
@@ -56,7 +61,7 @@ function Filters(data) {
       UpdateButtonColor(filterHR);
    });
 
-   filterParent.appendChild(filterContainer);
+   filterParent.appendChild(filterContainer); //affectations et répartition des filtres
    filterParent.appendChild(gallery);
 
    filterContainer.appendChild(filterTous);
@@ -90,6 +95,8 @@ function PopulateWorks(data, filter) {
       figure.appendChild(img);
       figure.appendChild(figcaption);
 
+      figure.dataset.workid = item.id;
+
       container.appendChild(figure);
    });
 }
@@ -102,16 +109,6 @@ function UpdateButtonColor(clickedButton){
    clickedButton.classList.add('active');
 }
 
-function Send(){
-
-   //exemple de post
-   fetch("http://localhost:5678/api/works", {
-      method: "POST",                                 //protocole
-      headers: {"Content-Type" : "application/json"}, //format
-      body : JSON.stringify('{"valeur": "info"}')                     //Charge Utile
-   });
-}
-
 function Modify(){
    //TODO créer une pop up contenant : de quoi la quitter, titre Galerie photo, l'extraction de toutes les images des works sans les noms
    //TODO ,un séparateur et un bouton Ajouter une photo
@@ -122,11 +119,6 @@ function AddPicture(){
    //TODO créer une pop up pour l'upload de l'image, Nom et Catégorie
 }
 
-function Login() {
- //TODO renvoyer sur la page de login si non connecté / vérifier le token de connexion si deja connecté
- 
-
-}
 function CreateWork(){
 
 }
@@ -135,13 +127,61 @@ function DeleteWork(){
 }
 function IsConnected(){
    try{
-      const test = localStorage.getItem("Soblutoken");
+      const token = localStorage.getItem("Soblutoken");
 
+      if(token){
+         JSONrecup(true);
+      }
+      else{
+         JSONrecup(false);
+      }
    }
    catch(error){
-
+      console.log(error);
    }
    
+
+}
+function userLevel(){
+   const login = document.getElementById("login"); //change login en logout et son comportement
+   login.innerText = "logout";
+   login.addEventListener("click",()=>{
+      localStorage.removeItem("Soblutoken");
+      login.setAttribute("href", "#");
+      window.location.reload();
+   });
+
+   const modDiv = document.createElement('div'); //conteneur de l'icone et du lien
+
+   const modIcon = document.createElement("span"); //l'icone de modification
+   modIcon.classList.add("material-symbols-rounded");
+   modIcon.innerText = "edit_square";
+
+   const modLink = document.createElement('a'); //lien cliquable pour la modale
+   modLink.innerText = "modifier";
+   modDiv.addEventListener('click', () => {
+      ModalSuppressPhoto();
+   });
+
+   modDiv.appendChild(modIcon); //placement des éléments à côté de Mes projets
+   modDiv.appendChild(modLink);
+   const h2 = document.querySelector('#portfolio h2');
+   h2.insertAdjacentElement('afterend', modDiv);
+}
+
+function ModalSuppressPhoto(){
+   const modal = document.createElement('div');
+   modal.classList.add('modale');
+   modal.role = "dialog";
+   modal.ariaModal = true;
+   modal.ariaLabel = "Titre";
+
+   const closeButton = document.createElement("button");
+   closeButton.addEventListener("click", () => {
+      modal.remove();
+   });
+
+   modal.appendChild(closeButton);
 
 }
 // TODO bosser la gestion du dataset
