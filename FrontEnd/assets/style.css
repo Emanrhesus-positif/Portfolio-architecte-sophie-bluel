@@ -251,8 +251,15 @@ footer nav ul {
 	right: 2rem;
  }
 
+ .backButton {
+	position : absolute;
+	top : 2rem;
+	left: 2rem;
+ }
+
  .separator {
 	width: 75%;
+	margin-top: 2rem;
 	border-top:1px solid #1D6154;
  }
 
@@ -290,9 +297,23 @@ footer nav ul {
 	margin:0;
 	width:2rem;
 	height:2rem;
-	top : 1rem;
-	right : 1rem;
+	top : 5%;
+	right : 5%;
 	border-radius: 0.3rem;
 }
 
+.modal form{
+	display : flex;
+	flex-direction: column;
+	justify-content: center;
+
+}
+.modal form button{
+	margin: auto;
+}
+
+#contact select{
+	height:50px;
+	font-size: 1.2rem;
+}
 

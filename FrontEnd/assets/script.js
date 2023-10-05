@@ -18,7 +18,6 @@ async function JSONrecup(isConnected) {
    }
 
 }
-
 function Filters(data) {
 
    const filterParent = document.querySelector('#portfolio'); //parent
@@ -69,7 +68,6 @@ function Filters(data) {
    filterContainer.appendChild(filterHR);
 
 }
-
 function PopulateWorks(data, filter) {
    const container = document.querySelector('.gallery');
    container.innerHTML = "";
@@ -99,7 +97,6 @@ function PopulateWorks(data, filter) {
       container.appendChild(figure);
    });
 }
-
 function UpdateButtonColor(clickedButton){
    const filterButton = document.querySelectorAll('.filter');
    filterButton.forEach((button) => {
@@ -150,7 +147,6 @@ function userLevel(){
    const h2 = document.querySelector('#portfolio h2');
    h2.insertAdjacentElement('afterend', modDiv);
 }
-
 function ModalSuppressPhoto(){
    const modal = document.createElement('div'); //container
    modal.classList.add('modal');
@@ -196,9 +192,91 @@ function ModalSuppressPhoto(){
    document.body.appendChild(modal);
 
 }
-
 function ModalAddPicture(){
+   const deleteModal = document.querySelector('.modal'); //supression de la derniere fenêtre modale
+   deleteModal.remove();
 
+   const cache = document.querySelector('.cache'); //backbox récupérée de la derniere modale
+
+   const modal = document.createElement('div'); //container pour la modale
+   modal.classList.add('modal');
+   modal.role = "dialog";
+   modal.ariaModal = true;
+   modal.ariaLabel = "Titre";
+
+   const closeButton = document.createElement('span'); //bouton de fermeture
+   closeButton.classList.add("material-symbols-rounded");
+   closeButton.classList.add("closeButton");
+   closeButton.innerText = "close";
+   closeButton.addEventListener("click", () => {
+      cache.remove();
+      modal.remove();
+   });
+
+   const backButton = document.createElement('span'); //bouton de retour
+   backButton.classList.add("material-symbols-rounded");
+   backButton.classList.add("backButton");
+   backButton.innerText = "arrow_back";
+   backButton.addEventListener("click", () => {
+      cache.remove();
+      modal.remove();
+      ModalSuppressPhoto();
+   });
+
+   const modalTitle = document.createElement('h3'); //titre de la modale
+   modalTitle.innerText = "Ajout Photo";
+
+   const form = document.createElement('form'); //formulaire pour l'envoi du nouveal travail
+   form.id = "contact";
+
+   const pictureContainer = document.createElement('input'); //container image
+   pictureContainer.type = "file";
+   pictureContainer.accept = "image/*";
+   pictureContainer.classList.add("imageInput");
+   pictureContainer.id = "file";
+   const pictureField = document.createElement('div'); //zone de dépôt image
+
+   const labelTitle = document.createElement("label"); //titre image
+   labelTitle.htmlFor = "title";
+   labelTitle.innerText = "Titre";
+   const pictureTitle = document.createElement("input"); 
+   pictureTitle.type = "text";
+   pictureTitle.id = "title";
+   pictureTitle.name = "title";
+
+   const labelCategory = document.createElement("label"); //catégorie image
+   labelCategory.htmlFor = "category";
+   labelCategory.innerText = "Catégorie";
+   const pictureCategory = document.createElement("select");
+   pictureCategory.id = "category";
+   pictureCategory.name = "category";
+   pictureCategory.options.add(new Option("Objet", 1));
+   pictureCategory.options.add(new Option("Appartement", 2));
+   pictureCategory.options.add(new Option("Hôtel / Restaurant", 3));
+
+   const separator = document.createElement('hr'); //ligne séparatrice
+   separator.classList.add('separator');
+
+   const addPicture = document.createElement('button'); // envoi du formulaire
+   addPicture.innerText = "Valider";
+   addPicture.addEventListener("click", (e) => {
+      e.preventDefault();
+      SendPicture();
+   });
+
+   modal.appendChild(closeButton); //placement des objets dans l'ordre dans la modale
+   modal.appendChild(backButton);
+   modal.appendChild(modalTitle);
+   modal.appendChild(form);
+   form.appendChild(pictureField); //attention
+   pictureField.appendChild(pictureContainer); //attention
+   form.appendChild(labelTitle);
+   form.appendChild(pictureTitle);
+   form.appendChild(labelCategory);
+   form.appendChild(pictureCategory);
+   form.appendChild(separator);
+   form.appendChild(addPicture);
+   document.body.appendChild(modal);
 }
 async function PopulateDeletableWorks(){
 
@@ -225,8 +303,14 @@ function FillModGallery(data){
       figure.dataset.workid = item.id;
 
       const destructor = document.createElement('button'); //suppression travail
-      destructor.addEventListener("click", () =>{
+      destructor.addEventListener("click", () =>{ 
          DeleteWork(figure.dataset.workid);
+         const element = document.querySelectorAll('[data-workid]');
+         element.forEach((item) => {
+            if(item.getAttribute('data-workid') === figure.dataset.workid){
+               item.remove();
+            }
+         });
       });
       destructor.classList.add('delete');
       const trashCan = document.createElement('span');
@@ -242,16 +326,46 @@ function FillModGallery(data){
 }
 async function DeleteWork(id){
    try{
+      const token = localStorage.getItem("Soblutoken");
       const sendDeletion = await fetch(`http://localhost:5678/api/works/${id}`, {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+               "Content-Type" : "application/json",
+               "Authorization": `Bearer ${token}`
+            }
       });
       const answer = await sendDeletion.json();
-   }
-   catch(error){
       console.log(answer.status);
    }
+   catch(error){
+      console.log("test "+ error);
+      return false;
+   }
 }
-// TODO bosser la gestion du dataset
+async function SendPicture(){
+   try{
+
+      const image = document.getElementById('file').value;
+      const title = document.querySelector('#title').value;
+      const category = document.querySelector('#category').value;
+
+      const sendPic = await fetch("http://localhost:5678/api/works", {
+         method: "POST",
+         headers: {"Content-type" : "application/json"},
+         body: JSON.stringify({
+            "image" : image,
+            "title" : title,
+            "category" : category
+         })
+      });
+      const answer = await sendPic.json();
+      console.log(answer.status);
+   }
+   catch{
+
+   }
+}
+//CHECK la gestion du dataset
 // html
 // <figure data-workid="1"></figure> //dataset
 
@@ -262,12 +376,13 @@ async function DeleteWork(id){
 // const ee = e.target.parentNode: //recup le parent de l'élément courant comme le bouton
 // ee.remove(); //pour supprimer le parent par exemple
 
-//TODO récup du token en session ou localstorage et le vérifier
-//TODO afficher le bouton de modif des travaux, virer les filtres
-//TODO bouton modif : ouverture de la modale 1 supression de la liste des items
-//TODO si connecté : dataset des travaux pour leur affichage et suppression simultanés du backboard et de la modale
-//TODO si non connecté : actuel donc if token true > nouvelle fonct et if token false : >JSONrecup par exemple
+//CHECK récup du token en session ou localstorage et le vérifier
+//CHECK afficher le bouton de modif des travaux, virer les filtres
+//CHECK bouton modif : ouverture de la modale 1 supression de la liste des items
+//CHECK si connecté : dataset des travaux pour leur affichage et suppression simultanés du backboard et de la modale
 //TODO creer la modale 2 pour l'enregistrement de l'image et le stockage de son lien + nom + catégorie
 //TODO gérer la partie CSS 
 //droit d'ajouter du CSS mais vaut mieux le garder en bas pour montrer ce qui change
 //attention session = disparait quand on ferme l'onglet, local présent en dur sur le disque
+
+//TODO voir comment envoyer le token pour la suppression( vu avec postman)
