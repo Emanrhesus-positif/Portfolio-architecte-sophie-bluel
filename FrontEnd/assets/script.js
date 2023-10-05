@@ -1,13 +1,30 @@
 
 
 IsConnected();
-async function JSONrecup(isConnected) {
+function IsConnected(){ //vérifie si un token existe
+   try{
+      const token = localStorage.getItem("Soblutoken");
+
+      if(token){
+         LoadPage(true);
+      }
+      else{
+         LoadPage(false);
+      }
+   }
+   catch(error){
+      console.log(error);
+   }
+   
+
+}
+async function LoadPage(isConnected) {//choix d'affichage selon présence ou absence de token
    try {
       const response = await fetch('http://localhost:5678/api/works');
       const data = await response.json();
       if (isConnected){
          PopulateWorks(data);
-         userLevel();
+         UserLevel();
       }
       else{
          Filters(data);
@@ -20,7 +37,7 @@ async function JSONrecup(isConnected) {
    }
 
 }
-function Filters(data) {
+function Filters(data) {//affiche les filtres et les positionne
 
    const filterParent = document.querySelector('#portfolio'); //parent
    const gallery = document.querySelector('.gallery'); //conteneur
@@ -70,7 +87,7 @@ function Filters(data) {
    filterContainer.appendChild(filterHR);
 
 }
-function PopulateWorks(data, filter) {
+function PopulateWorks(data, filter) { //affiche les travaux selon le filtre sélectionné
    const container = document.querySelector('.gallery');
    container.innerHTML = "";
 
@@ -99,31 +116,7 @@ function PopulateWorks(data, filter) {
       container.appendChild(figure);
    });
 }
-function UpdateButtonColor(clickedButton){
-   const filterButton = document.querySelectorAll('.filter');
-   filterButton.forEach((button) => {
-      button.classList.remove('active');
-   });
-   clickedButton.classList.add('active');
-}
-function IsConnected(){
-   try{
-      const token = localStorage.getItem("Soblutoken");
-
-      if(token){
-         JSONrecup(true);
-      }
-      else{
-         JSONrecup(false);
-      }
-   }
-   catch(error){
-      console.log(error);
-   }
-   
-
-}
-function userLevel(){
+function UserLevel(){ //affiche les éléments pour un utilisateur disposant d'un token
    const login = document.getElementById("login"); //change login en logout et son comportement
    login.innerText = "logout";
    login.addEventListener("click",()=>{
@@ -149,7 +142,14 @@ function userLevel(){
    const h2 = document.querySelector('#portfolio h2');
    h2.insertAdjacentElement('afterend', modDiv);
 }
-function ModalSuppressPhoto(){
+function UpdateButtonColor(clickedButton){ //Change la couleur de fond des filtres
+   const filterButton = document.querySelectorAll('.filter');
+   filterButton.forEach((button) => {
+      button.classList.remove('active');
+   });
+   clickedButton.classList.add('active');
+}
+function ModalSuppressPhoto(){//création de la modale de modification des travaux
    const modal = document.createElement('div'); //container
    modal.classList.add('modal');
    modal.role = "dialog";
@@ -194,7 +194,74 @@ function ModalSuppressPhoto(){
    document.body.appendChild(modal);
 
 }
-function ModalAddPicture(){
+async function PopulateDeletableWorks(){ //récupération des travaux pour la modale
+
+   try {
+      const response = await fetch('http://localhost:5678/api/works');
+      const data = await response.json();
+      FillModGallery(data);
+   }
+   catch (error) {
+      console.error('Erreur :', error);
+   }
+}
+function FillModGallery(data){ //création des éléments de la gallerie de la modale et de leurs destructeurs
+   const container = document.querySelector('.modal .gallery');
+   container.innerHTML = "";
+   data.forEach((item) => {
+
+      const figure = document.createElement('figure'); //conteneur du travail
+
+      const img = document.createElement('img'); //image
+      img.src = item.imageUrl;
+      img.alt = item.title;
+      figure.dataset.workid = item.id;
+
+      const destructor = document.createElement('button'); //suppression travail
+      destructor.type = "button";
+      destructor.addEventListener("click", (event) =>{ 
+         event.preventDefault();
+         DeleteWork(figure.dataset.workid);
+         const element = document.querySelectorAll('[data-workid]');
+         element.forEach((item) => {
+            if(item.getAttribute('data-workid') === figure.dataset.workid){
+               item.remove();
+            }
+         });
+      });
+      destructor.classList.add('delete');
+      const trashCan = document.createElement('span');
+      trashCan.classList.add('material-symbols-rounded');
+      trashCan.innerText = "delete";
+      destructor.appendChild(trashCan);
+
+      figure.appendChild(img);
+      figure.appendChild(destructor);
+
+      container.appendChild(figure);
+   });
+}
+async function DeleteWork(id){ //DELETE envoi avec id de la photo à détruire
+   try{
+      const token = localStorage.getItem("Soblutoken");
+      tokenCode = token.token;
+      console.log(tokenCode);
+      const sendDeletion = await fetch(`http://localhost:5678/api/works/${id}`, {
+            method: "DELETE",
+            headers: {
+               "Content-Type" : "application/json",
+               "Authorization": `Bearer ${token}`
+            }
+      });
+      const answer = await sendDeletion.json();
+      console.log(answer.status);
+   }
+   catch(error){
+      console.log("test "+ error);
+      return false;
+   }
+}
+function ModalAddPicture(){ //fonction de création de la modale d'upload photo
    const deleteModal = document.querySelector('.modal'); //supression de la derniere fenêtre modale
    deleteModal.remove();
 
@@ -281,73 +348,6 @@ function ModalAddPicture(){
    form.appendChild(addPicture);
    document.body.appendChild(modal);
 }
-async function PopulateDeletableWorks(){
-
-   try {
-      const response = await fetch('http://localhost:5678/api/works');
-      const data = await response.json();
-      FillModGallery(data);
-   }
-   catch (error) {
-      console.error('Erreur :', error);
-   }
-}
-function FillModGallery(data){
-   const container = document.querySelector('.modal .gallery');
-   container.innerHTML = "";
-   data.forEach((item) => {
-
-      const figure = document.createElement('figure'); //conteneur du travail
-
-      const img = document.createElement('img'); //image
-      img.src = item.imageUrl;
-      img.alt = item.title;
-      figure.dataset.workid = item.id;
-
-      const destructor = document.createElement('button'); //suppression travail
-      destructor.type = "button";
-      destructor.addEventListener("click", (event) =>{ 
-         event.preventDefault();
-         DeleteWork(figure.dataset.workid);
-         const element = document.querySelectorAll('[data-workid]');
-         element.forEach((item) => {
-            if(item.getAttribute('data-workid') === figure.dataset.workid){
-               item.remove();
-            }
-         });
-      });
-      destructor.classList.add('delete');
-      const trashCan = document.createElement('span');
-      trashCan.classList.add('material-symbols-rounded');
-      trashCan.innerText = "delete";
-      destructor.appendChild(trashCan);
-
-      figure.appendChild(img);
-      figure.appendChild(destructor);
-
-      container.appendChild(figure);
-   });
-}
-async function DeleteWork(id){
-   try{
-      const token = localStorage.getItem("Soblutoken");
-      tokenCode = token.token;
-      console.log(tokenCode);
-      const sendDeletion = await fetch(`http://localhost:5678/api/works/${id}`, {
-            method: "DELETE",
-            headers: {
-               "Content-Type" : "application/json",
-               "Authorization": `Bearer ${token}`
-            }
-      });
-      const answer = await sendDeletion.json();
-      console.log(answer.status);
-   }
-   catch(error){
-      console.log("test "+ error);
-      return false;
-   }
-}
 async function SendPicture(){
    try{
       const image = document.getElementById('file').value;
@@ -373,21 +373,14 @@ async function SendPicture(){
       console.log(error);
    }
 }
-
 function SavePicture(){
    const picture = document.getElementById("file");
-   //Magic.Save(picture, "./Backend/images"); //je sais pas
+   //voir les formdata
    
 }
-//CHECK la gestion du dataset
-//CHECK récup du token en session ou localstorage et le vérifier
-//CHECK afficher le bouton de modif des travaux, virer les filtres
-//CHECK bouton modif : ouverture de la modale 1 supression de la liste des items
-//CHECK si connecté : dataset des travaux pour leur affichage et suppression simultanés du backboard et de la modale
-//SEMI-CHECK creer la modale 2 pour l'enregistrement de l'image et le stockage de son lien + nom + catégorie
 //TODO gérer la partie CSS 
-//droit d'ajouter du CSS mais vaut mieux le garder en bas pour montrer ce qui change
-//attention session = disparait quand on ferme l'onglet, local présent en dur sur le disque
+//TODO réorganiser les fonctions dans l'ordre d'utilisation et 
 
-//TODO voir comment envoyer le token pour la suppression et l'envoi( vu avec postman)
-//evolution : extraire categories et peupler la création d'images avec.
+//TODO evolution : extraire categories et peupler la création d'images avec.
+//TODO envoyer l'image via formdata
+//TODO regarder comment envoyer le formdata avec fetch
