@@ -233,6 +233,7 @@ function FillModGallery(data){ //création des éléments de la gallerie de la m
                item.remove();
             }
          });
+         event.stopPropagation();
       });
 
       destructor.appendChild(trashCan);
