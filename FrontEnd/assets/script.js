@@ -1,5 +1,4 @@
 IsConnected();
-ModalSuppressPhoto();
 async function JSONrecup(isConnected) {
    try {
       const response = await fetch('http://localhost:5678/api/works');
@@ -108,23 +107,6 @@ function UpdateButtonColor(clickedButton){
    });
    clickedButton.classList.add('active');
 }
-
-function Modify(){
-   //TODO créer une pop up contenant : de quoi la quitter, titre Galerie photo, l'extraction de toutes les images des works sans les noms
-   //TODO ,un séparateur et un bouton Ajouter une photo
-   //TODO sur chaque photo une icone qui renvoie sur delete le work associé
-}
-
-function AddPicture(){
-   //TODO créer une pop up pour l'upload de l'image, Nom et Catégorie
-}
-
-function CreateWork(){
-
-}
-function DeleteWork(){
-
-}
 function IsConnected(){
    try{
       const token = localStorage.getItem("Soblutoken");
@@ -170,19 +152,104 @@ function userLevel(){
 }
 
 function ModalSuppressPhoto(){
-   const modal = document.createElement('div');
-   modal.classList.add('modale');
+   const modal = document.createElement('div'); //container
+   modal.classList.add('modal');
    modal.role = "dialog";
    modal.ariaModal = true;
    modal.ariaLabel = "Titre";
 
-   const closeButton = document.createElement("button");
+   const cache = document.createElement('cache'); //backbox
+   cache.classList.add("cache");
+   document.body.appendChild(cache);
+
+   const closeButton = document.createElement('span'); //bouton de fermeture
+   closeButton.classList.add("material-symbols-rounded");
+   closeButton.classList.add("closeButton");
+   closeButton.innerText = "close";
    closeButton.addEventListener("click", () => {
+      cache.remove();
       modal.remove();
    });
 
-   modal.appendChild(closeButton);
+   const title = document.createElement('h3'); //titre
+   title.innerText = "Galerie photo";
 
+   const gallery = document.createElement('div'); //gallerie
+   gallery.classList.add('gallery');
+   PopulateDeletableWorks();
+
+   const separator = document.createElement('hr'); //ligne séparatrice
+   separator.classList.add('separator');
+
+   const addPicture = document.createElement('button');
+   addPicture.innerText = "Ajouter une photo";
+   addPicture.addEventListener("click", () => {
+      ModalAddPicture();
+   });
+
+
+   modal.appendChild(closeButton);
+   modal.appendChild(title);
+   modal.appendChild(gallery);
+   modal.appendChild(separator);
+   modal.appendChild(addPicture);
+   document.body.appendChild(modal);
+
+}
+
+function ModalAddPicture(){
+
+}
+async function PopulateDeletableWorks(){
+
+   try {
+      const response = await fetch('http://localhost:5678/api/works');
+      const data = await response.json();
+      FillModGallery(data);
+   }
+   catch (error) {
+      console.error('Erreur :', error);
+   }
+}
+function FillModGallery(data){
+   const container = document.querySelector('.modal .gallery');
+   container.innerHTML = "";
+
+   data.forEach((item) => {
+
+      const figure = document.createElement('figure'); //conteneur du travail
+
+      const img = document.createElement('img'); //image
+      img.src = item.imageUrl;
+      img.alt = item.title;
+      figure.dataset.workid = item.id;
+
+      const destructor = document.createElement('button'); //suppression travail
+      destructor.addEventListener("click", () =>{
+         DeleteWork(figure.dataset.workid);
+      });
+      destructor.classList.add('delete');
+      const trashCan = document.createElement('span');
+      trashCan.classList.add('material-symbols-rounded');
+      trashCan.innerText = "delete";
+      destructor.appendChild(trashCan);
+
+      figure.appendChild(img);
+      figure.appendChild(destructor);
+
+      container.appendChild(figure);
+   });
+}
+async function DeleteWork(id){
+   try{
+      const sendDeletion = await fetch(`http://localhost:5678/api/works/${id}`, {
+            method: "DELETE"
+      });
+      const answer = await sendDeletion.json();
+   }
+   catch(error){
+      console.log(answer.status);
+   }
 }
 // TODO bosser la gestion du dataset
 // html
