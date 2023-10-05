@@ -268,8 +268,7 @@ footer nav ul {
 	color:black;
 	margin:4rem;
 	align-self: center;
- }
-
+}
 .modal{
 	width:80vw;
 	height:80vh;
@@ -301,7 +300,6 @@ footer nav ul {
 	right : 5%;
 	border-radius: 0.3rem;
 }
-
 .modal form{
 	display : flex;
 	flex-direction: column;
@@ -311,9 +309,7 @@ footer nav ul {
 .modal form button{
 	margin: auto;
 }
-
 #contact select{
 	height:50px;
 	font-size: 1.2rem;
 }
-

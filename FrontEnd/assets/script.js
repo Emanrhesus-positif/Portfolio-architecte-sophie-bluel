@@ -219,6 +219,11 @@ function FillModGallery(data){ //création des éléments de la gallerie de la m
 
       const destructor = document.createElement('button'); //suppression travail
       destructor.type = "button";
+      destructor.classList.add('delete');
+      const trashCan = document.createElement('span');
+      trashCan.classList.add('material-symbols-rounded');
+      trashCan.innerText = "delete";
+
       destructor.addEventListener("click", (event) =>{ 
          event.preventDefault();
          DeleteWork(figure.dataset.workid);
@@ -229,12 +234,8 @@ function FillModGallery(data){ //création des éléments de la gallerie de la m
             }
          });
       });
-      destructor.classList.add('delete');
-      const trashCan = document.createElement('span');
-      trashCan.classList.add('material-symbols-rounded');
-      trashCan.innerText = "delete";
-      destructor.appendChild(trashCan);
 
+      destructor.appendChild(trashCan);
       figure.appendChild(img);
       figure.appendChild(destructor);
 
@@ -253,12 +254,18 @@ async function DeleteWork(id){ //DELETE envoi avec id de la photo à détruire
                "Authorization": `Bearer ${token}`
             }
       });
-      const answer = await sendDeletion.json();
-      console.log(answer.status);
+      if(sendDeletion.status === 204)
+      {
+         console.log("Suppression réussie");
+      }
+      else{
+         const answer = await sendDeletion.json();
+         console.log(answer.status);
+      }
+      
    }
    catch(error){
-      console.log("test "+ error);
-      return false;
+      console.log("Erreur :  "+ error);
    }
 }
 function ModalAddPicture(){ //fonction de création de la modale d'upload photo
@@ -379,8 +386,7 @@ function SavePicture(){
    
 }
 //TODO gérer la partie CSS 
-//TODO réorganiser les fonctions dans l'ordre d'utilisation et 
-
+//TODO enlever le rechargement de page a la supression d'un travail
 //TODO evolution : extraire categories et peupler la création d'images avec.
 //TODO envoyer l'image via formdata
 //TODO regarder comment envoyer le formdata avec fetch
