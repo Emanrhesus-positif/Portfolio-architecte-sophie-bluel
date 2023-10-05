@@ -1,3 +1,5 @@
+
+
 IsConnected();
 async function JSONrecup(isConnected) {
    try {
@@ -261,6 +263,7 @@ function ModalAddPicture(){
    addPicture.innerText = "Valider";
    addPicture.addEventListener("click", (e) => {
       e.preventDefault();
+      SavePicture();
       SendPicture();
    });
 
@@ -292,7 +295,6 @@ async function PopulateDeletableWorks(){
 function FillModGallery(data){
    const container = document.querySelector('.modal .gallery');
    container.innerHTML = "";
-
    data.forEach((item) => {
 
       const figure = document.createElement('figure'); //conteneur du travail
@@ -303,7 +305,9 @@ function FillModGallery(data){
       figure.dataset.workid = item.id;
 
       const destructor = document.createElement('button'); //suppression travail
-      destructor.addEventListener("click", () =>{ 
+      destructor.type = "button";
+      destructor.addEventListener("click", (event) =>{ 
+         event.preventDefault();
          DeleteWork(figure.dataset.workid);
          const element = document.querySelectorAll('[data-workid]');
          element.forEach((item) => {
@@ -327,6 +331,8 @@ function FillModGallery(data){
 async function DeleteWork(id){
    try{
       const token = localStorage.getItem("Soblutoken");
+      tokenCode = token.token;
+      console.log(tokenCode);
       const sendDeletion = await fetch(`http://localhost:5678/api/works/${id}`, {
             method: "DELETE",
             headers: {
@@ -344,14 +350,16 @@ async function DeleteWork(id){
 }
 async function SendPicture(){
    try{
-
       const image = document.getElementById('file').value;
       const title = document.querySelector('#title').value;
       const category = document.querySelector('#category').value;
+      const token = localStorage.getItem("Soblutoken");
 
+      //TODO voir formdata
       const sendPic = await fetch("http://localhost:5678/api/works", {
          method: "POST",
-         headers: {"Content-type" : "application/json"},
+         headers: {"Content-type" : "application/json", 
+                  "Authorization" : `Bearer ${token}`},
          body: JSON.stringify({
             "image" : image,
             "title" : title,
@@ -361,28 +369,25 @@ async function SendPicture(){
       const answer = await sendPic.json();
       console.log(answer.status);
    }
-   catch{
-
+   catch(error){
+      console.log(error);
    }
 }
+
+function SavePicture(){
+   const picture = document.getElementById("file");
+   //Magic.Save(picture, "./Backend/images"); //je sais pas
+   
+}
 //CHECK la gestion du dataset
-// html
-// <figure data-workid="1"></figure> //dataset
-
-// const response : [{id : 1,image:idfijsd }] //exemple
-
-// response.forEach() //pour le travailler
-
-// const ee = e.target.parentNode: //recup le parent de l'élément courant comme le bouton
-// ee.remove(); //pour supprimer le parent par exemple
-
 //CHECK récup du token en session ou localstorage et le vérifier
 //CHECK afficher le bouton de modif des travaux, virer les filtres
 //CHECK bouton modif : ouverture de la modale 1 supression de la liste des items
 //CHECK si connecté : dataset des travaux pour leur affichage et suppression simultanés du backboard et de la modale
-//TODO creer la modale 2 pour l'enregistrement de l'image et le stockage de son lien + nom + catégorie
+//SEMI-CHECK creer la modale 2 pour l'enregistrement de l'image et le stockage de son lien + nom + catégorie
 //TODO gérer la partie CSS 
 //droit d'ajouter du CSS mais vaut mieux le garder en bas pour montrer ce qui change
 //attention session = disparait quand on ferme l'onglet, local présent en dur sur le disque
 
-//TODO voir comment envoyer le token pour la suppression( vu avec postman)
+//TODO voir comment envoyer le token pour la suppression et l'envoi( vu avec postman)
+//evolution : extraire categories et peupler la création d'images avec.

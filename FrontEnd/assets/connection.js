@@ -1,5 +1,4 @@
-//TODO récup et stocker le token en sessionstorage ou localstorage
-//TODO retour à la page index sur la même page
+
 const sendBtn = document.querySelector('form');
 let email = "email";
 let password = "password";
@@ -8,13 +7,6 @@ sendBtn.addEventListener("submit", function (event) {
     event.preventDefault();
     LoginAttempt();
 });
-
-
-
-function CreateUser(){
-
-
- }
  async function LoginAttempt(){
 
     try{
@@ -30,7 +22,7 @@ function CreateUser(){
             })
         });
         const connect = await reponse.json();
-        const token = JSON.stringify(connect);
+        const token = connect.token;
         StatusCheck(reponse.status, token);
 
     }
@@ -39,7 +31,6 @@ function CreateUser(){
     }
     
  }
-
  function TokenSave(token){
     localStorage.setItem("Soblutoken", token);
     const test = localStorage.getItem("Soblutoken");
@@ -48,28 +39,40 @@ function CreateUser(){
  function RemoveToken(){
     localStorage.removeItem("Soblutoken");
  }
-
  function StatusCheck(status, token){
     const userInfo = document.createElement("div");
     const parent = document.getElementById("contact");
 
-    switch (status){
+    if(status === 200){
+        console.log("user correct");
+        TokenSave(token);
+        window.location.href = "./index.html";
+    }
+    else
+    {
+        ShowErrorType(status);
+    }
+
+    parent.appendChild(userInfo);
+ }
+function ShowErrorType(error){
+    const errorDiv = document.createElement('div');
+    const section = document.querySelector('section');
+
+    switch (error){
         case 404:
             console.log("user not found");
-            //donner une classe avec une couleur CSS et mettre le texte dans la new div
+            errorDiv.innerText = "email et/ou mot de masse incorrects";
+            errorDiv.style.backgroundColor = "orange";
             break;
         case 401:
             console.log("user forbidden");
-            break;
-        case 200:
-            console.log("user correct");
-            TokenSave(token);
-            window.location.href = "./index.html";
+            errorDiv.innerText = "Accès interdit";
+            errorDiv.style.backgroundColor = "red";
             break;
         default:
             console.log("erreur de retour");
             break;
     }
-
-    parent.appendChild(userInfo);
- }
+    section.appendChild(errorDiv);
+}
