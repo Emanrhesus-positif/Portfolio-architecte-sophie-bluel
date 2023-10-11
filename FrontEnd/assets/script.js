@@ -226,14 +226,14 @@ function FillModGallery(data){ //création des éléments de la gallerie de la m
 
       destructor.addEventListener("click", (event) =>{ 
          event.preventDefault();
-         DeleteWork(figure.dataset.workid);
          const element = document.querySelectorAll('[data-workid]');
          element.forEach((item) => {
             if(item.getAttribute('data-workid') === figure.dataset.workid){
                item.remove();
             }
          });
-         event.stopPropagation();
+         let boulethein = DeleteWork(figure.dataset.workid, event);
+         console.log(boulethein);
       });
 
       destructor.appendChild(trashCan);
@@ -243,11 +243,11 @@ function FillModGallery(data){ //création des éléments de la gallerie de la m
       container.appendChild(figure);
    });
 }
-async function DeleteWork(id){ //DELETE envoi avec id de la photo à détruire
+async function DeleteWork(id, event){ //DELETE envoi avec id de la photo à détruire
+   
    try{
+      event.preventDefault(); //probleme de portée d'event ? peut être le déclencher ici
       const token = localStorage.getItem("Soblutoken");
-      tokenCode = token.token;
-      console.log(tokenCode);
       const sendDeletion = await fetch(`http://localhost:5678/api/works/${id}`, {
             method: "DELETE",
             headers: {
@@ -255,9 +255,11 @@ async function DeleteWork(id){ //DELETE envoi avec id de la photo à détruire
                "Authorization": `Bearer ${token}`
             }
       });
+      event.preventDefault(); //probleme de portée d'event ? peut être le déclencher ici
       if(sendDeletion.status === 204)
       {
          console.log("Suppression réussie");
+         return false;
       }
       else{
          const answer = await sendDeletion.json();
@@ -338,7 +340,6 @@ function ModalAddPicture(){ //fonction de création de la modale d'upload photo
    addPicture.innerText = "Valider";
    addPicture.addEventListener("click", (e) => {
       e.preventDefault();
-      SavePicture();
       SendPicture();
    });
 
@@ -358,36 +359,35 @@ function ModalAddPicture(){ //fonction de création de la modale d'upload photo
 }
 async function SendPicture(){
    try{
-      const image = document.getElementById('file').value;
+      const imageInput = document.getElementById('file');
       const title = document.querySelector('#title').value;
       const category = document.querySelector('#category').value;
       const token = localStorage.getItem("Soblutoken");
 
-      //TODO voir formdata
+      const formData = new FormData();
+      formData.append('image', imageInput.files[0]);
+      formData.append('title', title);
+      formData.append('category', category);
+      
       const sendPic = await fetch("http://localhost:5678/api/works", {
          method: "POST",
-         headers: {"Content-type" : "application/json", 
-                  "Authorization" : `Bearer ${token}`},
-         body: JSON.stringify({
-            "image" : image,
-            "title" : title,
-            "category" : category
-         })
+         headers: {"Authorization" : `Bearer ${token}`},
+         body: formData
       });
       const answer = await sendPic.json();
       console.log(answer.status);
    }
-   catch(error){
+   catch (error){
       console.log(error);
    }
 }
 function SavePicture(){
    const picture = document.getElementById("file");
    //voir les formdata
-   
+   const formImage = new FormData("");
 }
 //TODO gérer la partie CSS 
-//TODO enlever le rechargement de page a la supression d'un travail
+//TODO enlever le rechargement de page a la supression d'un travail ???? probleme de DELETE tester avec une div au lieu d'un button
 //TODO evolution : extraire categories et peupler la création d'images avec.
-//TODO envoyer l'image via formdata
-//TODO regarder comment envoyer le formdata avec fetch
+
+
