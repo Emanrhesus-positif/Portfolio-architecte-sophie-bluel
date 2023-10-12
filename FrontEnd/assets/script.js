@@ -126,9 +126,11 @@ function UserLevel(){ //affiche les éléments pour un utilisateur disposant d'u
    });
 
    const modDiv = document.createElement('div'); //conteneur de l'icone et du lien
+   modDiv.classList.add('modify');
+   const myProjects = document.querySelector('#portfolio h2');
 
    const modIcon = document.createElement("span"); //l'icone de modification
-   modIcon.classList.add("material-symbols-rounded");
+   modIcon.classList.add("material-symbols-rounded", "editIcon");
    modIcon.innerText = "edit_square";
 
    const modLink = document.createElement('a'); //lien cliquable pour la modale
@@ -137,10 +139,12 @@ function UserLevel(){ //affiche les éléments pour un utilisateur disposant d'u
       ModalSuppressPhoto();
    });
 
-   modDiv.appendChild(modIcon); //placement des éléments à côté de Mes projets
-   modDiv.appendChild(modLink);
-   const h2 = document.querySelector('#portfolio h2');
-   h2.insertAdjacentElement('afterend', modDiv);
+   modDiv.appendChild(myProjects); //placement des éléments
+   modDiv.appendChild(modIcon);
+   modIcon.appendChild(modLink);
+   const portfolio = document.querySelector('#portfolio');
+   portfolio.prepend(modDiv);
+
 }
 function UpdateButtonColor(clickedButton){ //Change la couleur de fond des filtres
    const filterButton = document.querySelectorAll('.filter');
@@ -232,8 +236,7 @@ function FillModGallery(data){ //création des éléments de la gallerie de la m
                item.remove();
             }
          });
-         let boulethein = DeleteWork(figure.dataset.workid, event);
-         console.log(boulethein);
+         DeleteWork(figure.dataset.workid);
       });
 
       destructor.appendChild(trashCan);
@@ -243,10 +246,9 @@ function FillModGallery(data){ //création des éléments de la gallerie de la m
       container.appendChild(figure);
    });
 }
-async function DeleteWork(id, event){ //DELETE envoi avec id de la photo à détruire
+async function DeleteWork(id){ //DELETE envoi avec id de la photo à détruire
    
    try{
-      event.preventDefault(); //probleme de portée d'event ? peut être le déclencher ici
       const token = localStorage.getItem("Soblutoken");
       const sendDeletion = await fetch(`http://localhost:5678/api/works/${id}`, {
             method: "DELETE",
@@ -255,11 +257,9 @@ async function DeleteWork(id, event){ //DELETE envoi avec id de la photo à dét
                "Authorization": `Bearer ${token}`
             }
       });
-      event.preventDefault(); //probleme de portée d'event ? peut être le déclencher ici
       if(sendDeletion.status === 204)
       {
          console.log("Suppression réussie");
-         return false;
       }
       else{
          const answer = await sendDeletion.json();
@@ -381,13 +381,9 @@ async function SendPicture(){
       console.log(error);
    }
 }
-function SavePicture(){
-   const picture = document.getElementById("file");
-   //voir les formdata
-   const formImage = new FormData("");
-}
+
 //TODO gérer la partie CSS 
-//TODO enlever le rechargement de page a la supression d'un travail ???? probleme de DELETE tester avec une div au lieu d'un button
+//TODO enlever le rechargement de page a la supression d'un travail ???? probleme de DELETE
 //TODO evolution : extraire categories et peupler la création d'images avec.
 
 
