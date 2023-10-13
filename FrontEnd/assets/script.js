@@ -271,7 +271,7 @@ async function DeleteWork(id){ //DELETE envoi avec id de la photo à détruire
       console.log("Erreur :  "+ error);
    }
 }
-function ModalAddPicture(){ //fonction de création de la modale d'upload photo
+function ModalAddPicture(){ //Création de la modale d'upload photo
    const deleteModal = document.querySelector('.modal'); //supression de la derniere fenêtre modale
    deleteModal.remove();
 
@@ -313,7 +313,39 @@ function ModalAddPicture(){ //fonction de création de la modale d'upload photo
    pictureContainer.accept = "image/*";
    pictureContainer.classList.add("imageInput");
    pictureContainer.id = "file";
-   const pictureField = document.createElement('div'); //zone de dépôt image
+
+   const pictureField = document.createElement('div'); //zone de dépôt image qui prend le comportement de l'input
+   pictureField.classList.add('field');
+   pictureField.addEventListener("click",()=>{
+      pictureContainer.click();
+   });
+
+   const uploadIcon = document.createElement('span'); //image de la zone image
+   uploadIcon.classList.add("material-symbols-rounded");
+   uploadIcon.classList.add("upload-icon");
+   uploadIcon.classList.add("imagesmode");
+   uploadIcon.innerText = "imagesmode";
+
+   const ajoutImageBtn = document.createElement('button'); //faux bouton d'upload
+   ajoutImageBtn.classList.add("upload-btn");
+   ajoutImageBtn.id = "upload-btn";
+   ajoutImageBtn.innerText = "+ Ajouter photo";
+   ajoutImageBtn.addEventListener("click",(e)=>{
+      e.preventDefault();
+   });
+
+   const acceptedFormat = document.createElement('p'); // texte des formats autorisés
+   acceptedFormat.classList.add("upload-description");
+   acceptedFormat.innerText = "jpg, png : 4Mo max";
+
+   const imageUploaded = document.createElement('img'); //emplacement de l'image uploadée
+   imageUploaded.classList.add("selected-image");
+   imageUploaded.alt = "Image Sélectionnée";
+
+   pictureContainer.addEventListener("change", (e) => {
+      ChangeEventUpload(pictureContainer, imageUploaded)
+   });
+   
 
    const labelTitle = document.createElement("label"); //titre image
    labelTitle.htmlFor = "title";
@@ -338,26 +370,54 @@ function ModalAddPicture(){ //fonction de création de la modale d'upload photo
 
    const addPicture = document.createElement('button'); // envoi du formulaire
    addPicture.innerText = "Valider";
+   addPicture.type = "button";
+   addPicture.setAttribute('disabled', 'disabled');
+   addPicture.classList.add('notActive');
    addPicture.addEventListener("click", (e) => {
       e.preventDefault();
       SendPicture();
    });
 
-   modal.appendChild(closeButton); //placement des objets dans l'ordre dans la modale
-   modal.appendChild(backButton);
-   modal.appendChild(modalTitle);
-   modal.appendChild(form);
-   form.appendChild(pictureField); //attention
-   pictureField.appendChild(pictureContainer); //attention
+   //gestion du contrôle de completion des champs d'image (a mettre dans une fonction pour alléger cette fonction)
+   const list = [
+      pictureContainer,
+      pictureTitle,
+      pictureCategory
+   ];
+   list.forEach((field)=>{
+      field.addEventListener("input", () =>{
+         if (CheckPictureFields()){
+            addPicture.removeAttribute('disabled');
+            addPicture.classList.remove('notActive');
+         }
+         else{
+            addPicture.setAttribute('disabled', 'disabled');
+            addPicture.classList.add('notActive');
+         }
+      });
+   });
+
+   pictureField.appendChild(uploadIcon); //placement des populateurs de la div image
+   pictureField.appendChild(ajoutImageBtn);
+   pictureField.appendChild(acceptedFormat);
+   pictureField.appendChild(pictureContainer);
+   pictureField.appendChild(imageUploaded);
+
+   form.appendChild(pictureField);
    form.appendChild(labelTitle);
    form.appendChild(pictureTitle);
    form.appendChild(labelCategory);
    form.appendChild(pictureCategory);
    form.appendChild(separator);
    form.appendChild(addPicture);
+
+   modal.appendChild(closeButton); 
+   modal.appendChild(backButton);
+   modal.appendChild(modalTitle);
+   modal.appendChild(form);
    document.body.appendChild(modal);
 }
-async function SendPicture(){
+async function SendPicture(){ // POST envoi avec tous les éléments du travail
    try{
       const imageInput = document.getElementById('file');
       const title = document.querySelector('#title').value;
@@ -381,9 +441,36 @@ async function SendPicture(){
       console.log(error);
    }
 }
+function CheckPictureFields(){ //vérifie si tous les champs sont bien remplis
+   const image = document.getElementById('file');
+   const title = document.getElementById('title');
+   const category = document.getElementById('category');
+   if (image.files.length > 0 && title.value !== '' && category.value !== ''){
+      return true;
+   }
+   else{
+      return false;
+   }
+}
+function ChangeEventUpload(pictureContainer, imageUploaded){ //met une image dans la div 
+   if (pictureContainer.files && pictureContainer.files[0]) {
+      const reader = new FileReader();
 
+      reader.onload = function (e) {
+         imageUploaded.src = e.target.result;
+         imageUploaded.style.display = "block";
+         document.querySelector('.upload-icon').remove();
+         document.querySelector('.upload-btn').remove();
+         document.querySelector('.upload-description').remove();
+      };
+      reader.readAsDataURL(pictureContainer.files[0]);
+   }
+}
 //TODO gérer la partie CSS 
 //TODO enlever le rechargement de page a la supression d'un travail ???? probleme de DELETE
 //TODO evolution : extraire categories et peupler la création d'images avec.
+//CSS : voir le logout
+//changer la gestion de la div d'image et l'affichage d'erreur si il manque un champ couleur marche pas
 
 
+//ajouter largeur max 1440

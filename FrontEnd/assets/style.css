@@ -227,10 +227,8 @@ footer nav ul {
 	border-radius: 0.5rem;
 	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 	z-index: 2;
-
-	/* max-height:80vh;
-	max-width:50vw; */
-
+	width:80vw;
+	height:80vh;
 	max-height: 688px;
 	max-width: 630px;
 
@@ -274,10 +272,7 @@ footer nav ul {
 	margin:4rem;
 	align-self: center;
 }
-.modal{
-	width:80vw;
-	height:80vh;
-}
+
 .modal .gallery{
 	display: flex;
 	flex-wrap: wrap;
@@ -289,8 +284,6 @@ footer nav ul {
 }
 .modal figure{
 	position : relative;
-	/* max-width: 5vw;
-	min-width: 5rem; */
 	max-width: 77px;
 	max-height: 102.57px;
 	display: flex;
@@ -306,8 +299,6 @@ footer nav ul {
 	position:absolute;
 	background-color: black;
 	margin:0;
-	/* width:2rem;
-	height:2rem; */
 	width:17px;
 	height:17px;
 	top : 3%;
@@ -345,12 +336,56 @@ footer nav ul {
 	gap : 2rem;
 }
 .modify a{
-	color: white;
+	color: black;
 	font-family: 'Work Sans', sans-serif;
 	padding-left: 1rem;
 	font-size:medium;
 }
 
+#contact .notActive{
+	background-color: #A7A7A7;
+}
 
+.modal #contact{
+	margin:auto;
+	width:420px;
+}
+.modal #contact label{
+	text-align: left;
+}
 
+.field{
+	display: flex;
+	flex-direction: column;
+	height:169px;
+	background-color:#E8F1F6;
+}
 
+.upload-icon {
+    font-size: 100px;
+	color: #B9C5CC;
+}
+
+#upload-btn .upload-btn{
+	background-color:#B9C5CC;
+}
+
+.upload-description {
+    font-size: 14px;
+}
+
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.selected-image {
+    display: none;
+    max-width: 100%;
+    max-height: 200px;
+}
+
+.imageInput{
+	display: none;
+}
