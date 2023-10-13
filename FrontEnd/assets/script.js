@@ -260,6 +260,7 @@ async function DeleteWork(id){ //DELETE envoi avec id de la photo à détruire
       if(sendDeletion.status === 204)
       {
          console.log("Suppression réussie");
+         return ;
       }
       else{
          const answer = await sendDeletion.json();
@@ -466,11 +467,11 @@ function ChangeEventUpload(pictureContainer, imageUploaded){ //met une image dan
       reader.readAsDataURL(pictureContainer.files[0]);
    }
 }
-//TODO gérer la partie CSS 
 //TODO enlever le rechargement de page a la supression d'un travail ???? probleme de DELETE
 //TODO evolution : extraire categories et peupler la création d'images avec.
-//CSS : voir le logout
 //changer la gestion de la div d'image et l'affichage d'erreur si il manque un champ couleur marche pas
 
-
-//ajouter largeur max 1440
+//hover souris sur les éléments qui affichent des curseurs 
+//changer bouton de login et de logout et le bouton de validation de connection
+//virer la modale à l'ajout d'une photo
+//trouver comment empecher le reload de la page dans mon navigateur/mon windows
