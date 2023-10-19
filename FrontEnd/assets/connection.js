@@ -33,15 +33,13 @@ sendBtn.addEventListener("submit", function (event) {
  }
  function TokenSave(token){
     localStorage.setItem("Soblutoken", token);
-    const test = localStorage.getItem("Soblutoken");
-    console.log(test);
  }
  function RemoveToken(){
     localStorage.removeItem("Soblutoken");
  }
  function StatusCheck(status, token){
     const userInfo = document.createElement("div");
-    const parent = document.getElementById("contact");
+    const parent = document.getElementById("connector");
 
     if(status === 200){
         console.log("user correct");

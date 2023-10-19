@@ -18,7 +18,7 @@ function IsConnected(){ //vérifie si un token existe
    
 
 }
-async function LoadPage(isConnected) {//choix d'affichage selon présence ou absence de token
+async function LoadPage(isConnected) { //choix d'affichage selon présence ou absence de token
    try {
       const response = await fetch('http://localhost:5678/api/works');
       const data = await response.json();
@@ -46,18 +46,22 @@ function Filters(data) {//affiche les filtres et les positionne
    filterContainer.classList.add('filter-container'); //pour le style
 
    const filterTous = document.createElement('button'); //bouton TOUS
+   filterTous.type = "button";
    filterTous.classList.add("filter");
    filterTous.innerText = "Tous";
 
    const filterObjects = document.createElement('button'); //bouton OBJETS
+   filterObjects.type = "button";
    filterObjects.classList.add("filter");
    filterObjects.innerText = "Objets";
 
    const filterAppartements = document.createElement('button'); //Bouton APPARTEMENTS
+   filterAppartements.type = "button";
    filterAppartements.classList.add("filter");
    filterAppartements.innerText = "Appartements";
 
    const filterHR = document.createElement('button'); //bouton Hôtels et restaurants
+   filterHR.type = "button";
    filterHR.classList.add("filter");
    filterHR.innerText = "Hôtels & Restaurants";
 
@@ -85,6 +89,8 @@ function Filters(data) {//affiche les filtres et les positionne
    filterContainer.appendChild(filterObjects);
    filterContainer.appendChild(filterAppartements);
    filterContainer.appendChild(filterHR);
+
+   UpdateButtonColor(filterTous); //chargé par défaut
 
 }
 function PopulateWorks(data, filter) { //affiche les travaux selon le filtre sélectionné
@@ -153,7 +159,7 @@ function UpdateButtonColor(clickedButton){ //Change la couleur de fond des filtr
    });
    clickedButton.classList.add('active');
 }
-function ModalSuppressPhoto(){//création de la modale de modification des travaux
+function ModalSuppressPhoto(){ //création de la modale de modification des travaux
    const modal = document.createElement('div'); //container
    modal.classList.add('modal');
    modal.role = "dialog";
@@ -183,12 +189,12 @@ function ModalSuppressPhoto(){//création de la modale de modification des trava
    const separator = document.createElement('hr'); //ligne séparatrice
    separator.classList.add('separator');
 
-   const addPicture = document.createElement('button');
+   const addPicture = document.createElement('button'); //bouton d'ouverture de la modale d'ajout
+   addPicture.type = "button";
    addPicture.innerText = "Ajouter une photo";
    addPicture.addEventListener("click", () => {
       ModalAddPicture();
    });
-
 
    modal.appendChild(closeButton);
    modal.appendChild(title);
@@ -219,7 +225,7 @@ function FillModGallery(data){ //création des éléments de la gallerie de la m
       const img = document.createElement('img'); //image
       img.src = item.imageUrl;
       img.alt = item.title;
-      figure.dataset.workid = item.id;
+      figure.dataset.workid = item.id; //identifiant unique pour gérer la supression
 
       const destructor = document.createElement('button'); //suppression travail
       destructor.type = "button";
@@ -228,7 +234,7 @@ function FillModGallery(data){ //création des éléments de la gallerie de la m
       trashCan.classList.add('material-symbols-rounded');
       trashCan.innerText = "delete";
 
-      destructor.addEventListener("click", (event) =>{ 
+      destructor.addEventListener("click", (event) =>{ //récupere tous les travaux et en fonction du work-id cible, supprime l'élément du dom dans les deux galleries
          event.preventDefault();
          const element = document.querySelectorAll('[data-workid]');
          element.forEach((item) => {
@@ -306,8 +312,8 @@ function ModalAddPicture(){ //Création de la modale d'upload photo
    const modalTitle = document.createElement('h3'); //titre de la modale
    modalTitle.innerText = "Ajout Photo";
 
-   const form = document.createElement('form'); //formulaire pour l'envoi du nouveal travail
-   form.id = "contact";
+   const form = document.createElement('form'); //formulaire pour l'envoi du nouveau travail
+   form.id = "formPicture";
 
    const pictureContainer = document.createElement('input'); //container image
    pictureContainer.type = "file";
@@ -328,6 +334,7 @@ function ModalAddPicture(){ //Création de la modale d'upload photo
    uploadIcon.innerText = "imagesmode";
 
    const ajoutImageBtn = document.createElement('button'); //faux bouton d'upload
+   ajoutImageBtn.type = "button";
    ajoutImageBtn.classList.add("upload-btn");
    ajoutImageBtn.id = "upload-btn";
    ajoutImageBtn.innerText = "+ Ajouter photo";
@@ -346,7 +353,6 @@ function ModalAddPicture(){ //Création de la modale d'upload photo
    pictureContainer.addEventListener("change", (e) => {
       ChangeEventUpload(pictureContainer, imageUploaded)
    });
-   
 
    const labelTitle = document.createElement("label"); //titre image
    labelTitle.htmlFor = "title";
@@ -372,31 +378,20 @@ function ModalAddPicture(){ //Création de la modale d'upload photo
    const addPicture = document.createElement('button'); // envoi du formulaire
    addPicture.innerText = "Valider";
    addPicture.type = "button";
+   addPicture.id = "validate";
    addPicture.setAttribute('disabled', 'disabled');
    addPicture.classList.add('notActive');
    addPicture.addEventListener("click", (e) => {
       e.preventDefault();
-      SendPicture();
+      SendPicture(cache, modal);
    });
 
-   //gestion du contrôle de completion des champs d'image (a mettre dans une fonction pour alléger cette fonction)
    const list = [
       pictureContainer,
       pictureTitle,
       pictureCategory
    ];
-   list.forEach((field)=>{
-      field.addEventListener("input", () =>{
-         if (CheckPictureFields()){
-            addPicture.removeAttribute('disabled');
-            addPicture.classList.remove('notActive');
-         }
-         else{
-            addPicture.setAttribute('disabled', 'disabled');
-            addPicture.classList.add('notActive');
-         }
-      });
-   });
+   ModifyPictureFields(list, addPicture);
 
    pictureField.appendChild(uploadIcon); //placement des populateurs de la div image
    pictureField.appendChild(ajoutImageBtn);
@@ -418,7 +413,7 @@ function ModalAddPicture(){ //Création de la modale d'upload photo
    modal.appendChild(form);
    document.body.appendChild(modal);
 }
-async function SendPicture(){ // POST envoi avec tous les éléments du travail
+async function SendPicture(cache, modal){ // POST envoi avec tous les éléments du travail
    try{
       const imageInput = document.getElementById('file');
       const title = document.querySelector('#title').value;
@@ -436,11 +431,44 @@ async function SendPicture(){ // POST envoi avec tous les éléments du travail
          body: formData
       });
       const answer = await sendPic.json();
-      console.log(answer.status);
+      const container = document.querySelector('.gallery');
+      const figure = document.createElement('figure');
+
+      const img = document.createElement('img');
+      img.src = answer.imageUrl;
+      img.alt = answer.title;
+
+      const figcaption = document.createElement('figcaption');
+      figcaption.textContent = answer.title;
+
+      figure.appendChild(img);
+      figure.appendChild(figcaption);
+
+      figure.dataset.workid = answer.id;
+
+      container.appendChild(figure);
+
+      cache.remove();
+      modal.remove();
+      
    }
    catch (error){
       console.log(error);
    }
+}
+function ModifyPictureFields(list, addPicture){ //gestion du contrôle de completion des champs d'image
+   list.forEach((field)=>{
+      field.addEventListener("input", () =>{
+         if (CheckPictureFields()){
+            addPicture.removeAttribute('disabled');
+            addPicture.classList.remove('notActive');
+         }
+         else{
+            addPicture.setAttribute('disabled', 'disabled');
+            addPicture.classList.add('notActive');
+         }
+      });
+   });
 }
 function CheckPictureFields(){ //vérifie si tous les champs sont bien remplis
    const image = document.getElementById('file');
@@ -467,11 +495,8 @@ function ChangeEventUpload(pictureContainer, imageUploaded){ //met une image dan
       reader.readAsDataURL(pictureContainer.files[0]);
    }
 }
-//TODO enlever le rechargement de page a la supression d'un travail ???? probleme de DELETE
-//TODO evolution : extraire categories et peupler la création d'images avec.
-//changer la gestion de la div d'image et l'affichage d'erreur si il manque un champ couleur marche pas
 
 //hover souris sur les éléments qui affichent des curseurs 
-//changer bouton de login et de logout et le bouton de validation de connection
-//virer la modale à l'ajout d'une photo
-//trouver comment empecher le reload de la page dans mon navigateur/mon windows
+//changer affichage de login et de logout
+//  mettre à jour les travaux de la page principale
+//probleme de reload avec live server, lancer avec le deboggueur couplé avec le launch.json
