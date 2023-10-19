@@ -18,7 +18,7 @@ function IsConnected(){ //vérifie si un token existe
    
 
 }
-async function LoadPage(isConnected) { //choix d'affichage selon présence ou absence de token
+async function LoadPage(isConnected) { //GET des travaux + choix d'affichage selon présence ou absence de token
    try {
       const response = await fetch('http://localhost:5678/api/works');
       const data = await response.json();
@@ -30,14 +30,13 @@ async function LoadPage(isConnected) { //choix d'affichage selon présence ou ab
          Filters(data);
          PopulateWorks(data);
       }
-
    }
    catch (error) {
       console.error('Erreur :', error);
    }
 
 }
-function Filters(data) {//affiche les filtres et les positionne
+function Filters(data) { //affiche les filtres et les positionne
 
    const filterParent = document.querySelector('#portfolio'); //parent
    const gallery = document.querySelector('.gallery'); //conteneur
@@ -430,7 +429,7 @@ async function SendPicture(cache, modal){ // POST envoi avec tous les éléments
          headers: {"Authorization" : `Bearer ${token}`},
          body: formData
       });
-      const answer = await sendPic.json();
+      const answer = await sendPic.json(); //récupération du retour d'image et affichage dans la gallerie
       const container = document.querySelector('.gallery');
       const figure = document.createElement('figure');
 
@@ -470,7 +469,7 @@ function ModifyPictureFields(list, addPicture){ //gestion du contrôle de comple
       });
    });
 }
-function CheckPictureFields(){ //vérifie si tous les champs sont bien remplis
+function CheckPictureFields(){ //vérifie si tous les champs d'upload sont bien remplis
    const image = document.getElementById('file');
    const title = document.getElementById('title');
    const category = document.getElementById('category');
@@ -481,13 +480,13 @@ function CheckPictureFields(){ //vérifie si tous les champs sont bien remplis
       return false;
    }
 }
-function ChangeEventUpload(pictureContainer, imageUploaded){ //met une image dans la div 
+function ChangeEventUpload(pictureContainer, imageUploaded){ //met une image dans la div d'upload avant la validation 
    if (pictureContainer.files && pictureContainer.files[0]) {
       const reader = new FileReader();
 
       reader.onload = function (e) {
          imageUploaded.src = e.target.result;
-         imageUploaded.style.display = "block";
+         imageUploaded.style.display = "block"; //affichage de la div de placement de l'image et supression de tous les éléments graphiques pour l'upload
          document.querySelector('.upload-icon').remove();
          document.querySelector('.upload-btn').remove();
          document.querySelector('.upload-description').remove();
@@ -495,8 +494,3 @@ function ChangeEventUpload(pictureContainer, imageUploaded){ //met une image dan
       reader.readAsDataURL(pictureContainer.files[0]);
    }
 }
-
-//hover souris sur les éléments qui affichent des curseurs 
-//changer affichage de login et de logout
-//  mettre à jour les travaux de la page principale
-//probleme de reload avec live server, lancer avec le deboggueur couplé avec le launch.json

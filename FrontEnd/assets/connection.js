@@ -14,8 +14,8 @@ sendBtn.addEventListener("submit", function (event) {
         password = document.getElementById('password').value;
 
         const reponse = await fetch("http://localhost:5678/api/users/login", {
-            method: "POST",                                 //protocole
-            headers: {"Content-Type" : "application/json"}, //format
+            method: "POST",
+            headers: {"Content-Type" : "application/json"},
             body : JSON.stringify({
                  "email": email,
                  "password": password
