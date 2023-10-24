@@ -187,6 +187,27 @@ footer nav ul {
 }
 
 /*****************   ajouts    ********************************************************************/
+h3 {
+	font-size:30px;
+	color:black;
+	margin:4rem;
+	align-self: center;
+}
+a {
+	text-decoration: none;
+	color: black;
+}
+li a:hover {
+	color: #B1663C;
+}
+.material-symbols-rounded {
+	font-variation-settings:
+	'FILL' 0,
+	'wght' 400,
+	'GRAD' 0,
+	'opsz' 24
+  }
+
 .filter-container {
 	display: flex;
 	margin: auto;
@@ -207,13 +228,6 @@ footer nav ul {
 .filter.active {
     background-color: #1D6154;
     color: white;
-}
-.material-symbols-rounded {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 24
 }
 
 .modal {
@@ -236,41 +250,6 @@ footer nav ul {
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-
-.cache {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.5);
-	z-index: 1;
- }
- .closeButton {
-	position : absolute;
-	top : 2rem;
-	right: 2rem;
- }
-
- .backButton {
-	position : absolute;
-	top : 2rem;
-	left: 2rem;
- }
-
- .separator {
-	width: 420px;
-	margin-top: 2rem;
-	border-top:1px solid #1D6154;
- }
-
- h3 {
-	font-size:30px;
-	color:black;
-	margin:4rem;
-	align-self: center;
-}
-
 .modal .gallery{
 	display: flex;
 	flex-wrap: wrap;
@@ -322,6 +301,41 @@ footer nav ul {
 .modal form button{
 	margin: auto;
 }
+.modal #formPicture{
+	margin:auto;
+	width:420px;
+}
+.modal #formPicture label{
+	text-align: left;
+}
+
+.cache {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 1;
+ }
+ .closeButton {
+	position : absolute;
+	top : 2rem;
+	right: 2rem;
+ }
+
+ .backButton {
+	position : absolute;
+	top : 2rem;
+	left: 2rem;
+ }
+
+ .separator {
+	width: 420px;
+	margin-top: 2rem;
+	border-top:1px solid #1D6154;
+ }
+
 #formPicture select{
 	height:50px;
 	font-size: 1.2rem;
@@ -342,14 +356,6 @@ footer nav ul {
 
 #formPicture .notActive{
 	background-color: #A7A7A7;
-}
-
-.modal #formPicture{
-	margin:auto;
-	width:420px;
-}
-.modal #formPicture label{
-	text-align: left;
 }
 
 .field{
@@ -397,11 +403,4 @@ footer nav ul {
 }
 .field, span, button :hover{
 	cursor:pointer;
-}
-a {
-	text-decoration: none;
-	color: black;
-}
-li a:hover {
-	color: #B1663C;
 }

@@ -7,6 +7,7 @@ sendBtn.addEventListener("submit", function (event) {
     event.preventDefault();
     LoginAttempt();
 });
+
  async function LoginAttempt(){
 
     try{
@@ -60,7 +61,7 @@ function ShowErrorType(error){
     switch (error){
         case 404:
             console.log("user not found");
-            errorDiv.innerText = "email et/ou mot de masse incorrects";
+            errorDiv.innerText = "email et/ou mot de passe incorrects";
             errorDiv.style.backgroundColor = "orange";
             break;
         case 401:

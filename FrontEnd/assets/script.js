@@ -36,7 +36,7 @@ async function LoadPage(isConnected) { //GET des travaux + choix d'affichage sel
    }
 
 }
-function Filters(data) { //affiche les filtres et les positionne
+async function Filters(data) { //affiche les filtres et les positionne
 
    const filterParent = document.querySelector('#portfolio'); //parent
    const gallery = document.querySelector('.gallery'); //conteneur
@@ -48,47 +48,18 @@ function Filters(data) { //affiche les filtres et les positionne
    filterTous.type = "button";
    filterTous.classList.add("filter");
    filterTous.innerText = "Tous";
-
-   const filterObjects = document.createElement('button'); //bouton OBJETS
-   filterObjects.type = "button";
-   filterObjects.classList.add("filter");
-   filterObjects.innerText = "Objets";
-
-   const filterAppartements = document.createElement('button'); //Bouton APPARTEMENTS
-   filterAppartements.type = "button";
-   filterAppartements.classList.add("filter");
-   filterAppartements.innerText = "Appartements";
-
-   const filterHR = document.createElement('button'); //bouton Hôtels et restaurants
-   filterHR.type = "button";
-   filterHR.classList.add("filter");
-   filterHR.innerText = "Hôtels & Restaurants";
-
    filterTous.addEventListener("click", function (){
       PopulateWorks(data);
       UpdateButtonColor(filterTous);
-   });
-   filterObjects.addEventListener("click", function (){
-      PopulateWorks(data, 1);
-      UpdateButtonColor(filterObjects);
-   });
-   filterAppartements.addEventListener("click", function (){
-      PopulateWorks(data, 2);
-      UpdateButtonColor(filterAppartements);
-   });
-   filterHR.addEventListener("click", function (){
-      PopulateWorks(data, 3);
-      UpdateButtonColor(filterHR);
    });
 
    filterParent.appendChild(filterContainer); //affectations et répartition des filtres
    filterParent.appendChild(gallery);
 
    filterContainer.appendChild(filterTous);
-   filterContainer.appendChild(filterObjects);
-   filterContainer.appendChild(filterAppartements);
-   filterContainer.appendChild(filterHR);
 
+   const test = await GetCategories();
+   PopulateFilters(test, data); //création et ajout des autres boutons de filtrage
    UpdateButtonColor(filterTous); //chargé par défaut
 
 }
@@ -277,7 +248,7 @@ async function DeleteWork(id){ //DELETE envoi avec id de la photo à détruire
       console.log("Erreur :  "+ error);
    }
 }
-function ModalAddPicture(){ //Création de la modale d'upload photo
+async function ModalAddPicture(){ //Création de la modale d'upload photo
    const deleteModal = document.querySelector('.modal'); //supression de la derniere fenêtre modale
    deleteModal.remove();
 
@@ -367,9 +338,9 @@ function ModalAddPicture(){ //Création de la modale d'upload photo
    const pictureCategory = document.createElement("select");
    pictureCategory.id = "category";
    pictureCategory.name = "category";
-   pictureCategory.options.add(new Option("Objet", 1));
-   pictureCategory.options.add(new Option("Appartement", 2));
-   pictureCategory.options.add(new Option("Hôtel / Restaurant", 3));
+
+   const retCat = await GetCategories();
+   PopulateCategories(pictureCategory, retCat);
 
    const separator = document.createElement('hr'); //ligne séparatrice
    separator.classList.add('separator');
@@ -411,6 +382,29 @@ function ModalAddPicture(){ //Création de la modale d'upload photo
    modal.appendChild(modalTitle);
    modal.appendChild(form);
    document.body.appendChild(modal);
+}
+async function GetCategories(){
+   const token = localStorage.getItem("Soblutoken");
+   try{
+      const response = await fetch("http://localhost:5678/api/categories", {
+      method: "GET",
+      headers: {"Content-Type" : "application/json",
+               "Authorization" : `Bearer ${token}`}
+   });
+   const data = await response.json();
+   return data;
+   }
+   catch(e){
+      console.log("error on " + e);
+      console.log(data);
+   }
+   
+}
+function PopulateCategories(pictureCategory, data){
+   pictureCategory.options.add(new Option("", ''));
+   data.forEach((item) => {
+      pictureCategory.options.add(new Option(item.name, item.id));
+   });
 }
 async function SendPicture(cache, modal){ // POST envoi avec tous les éléments du travail
    try{
@@ -494,3 +488,27 @@ function ChangeEventUpload(pictureContainer, imageUploaded){ //met une image dan
       reader.readAsDataURL(pictureContainer.files[0]);
    }
 }
+
+function PopulateFilters(category, data){//génération des boutons des filtres
+   const filterContainer = document.querySelector(".filter-container");
+   category.forEach((item)=>{
+      let filter = document.createElement('button');
+      filter.type = "button";
+      filter.classList.add("filter");
+      filter.innerText = item.name;
+      filter.id = item.id;
+      console.log(item);
+
+   filter.addEventListener("click", function (){
+      PopulateWorks(data, item.id);
+      UpdateButtonColor(filter);
+
+   });
+   filterContainer.appendChild(filter);
+   });
+}
+
+
+
+   
+
