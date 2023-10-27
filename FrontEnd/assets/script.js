@@ -15,8 +15,6 @@ function IsConnected(){ //vérifie si un token existe
    catch(error){
       console.log(error);
    }
-   
-
 }
 async function LoadPage(isConnected) { //GET des travaux + choix d'affichage selon présence ou absence de token
    try {
@@ -34,7 +32,6 @@ async function LoadPage(isConnected) { //GET des travaux + choix d'affichage sel
    catch (error) {
       console.error('Erreur :', error);
    }
-
 }
 async function Filters(data) { //affiche les filtres et les positionne
 
@@ -42,7 +39,7 @@ async function Filters(data) { //affiche les filtres et les positionne
    const gallery = document.querySelector('.gallery'); //conteneur
 
    const filterContainer = document.createElement('div'); //div des elements
-   filterContainer.classList.add('filter-container'); //pour le style
+   filterContainer.classList.add('filter-container');
 
    const filterTous = document.createElement('button'); //bouton TOUS
    filterTous.type = "button";
@@ -175,7 +172,6 @@ function ModalSuppressPhoto(){ //création de la modale de modification des trav
 
 }
 async function PopulateDeletableWorks(){ //récupération des travaux pour la modale
-
    try {
       const response = await fetch('http://localhost:5678/api/works');
       const data = await response.json();
@@ -242,7 +238,6 @@ async function DeleteWork(id){ //DELETE envoi avec id de la photo à détruire
          const answer = await sendDeletion.json();
          console.log(answer.status);
       }
-      
    }
    catch(error){
       console.log("Erreur :  "+ error);
@@ -340,7 +335,7 @@ async function ModalAddPicture(){ //Création de la modale d'upload photo
    pictureCategory.name = "category";
 
    const retCat = await GetCategories();
-   PopulateCategories(pictureCategory, retCat);
+   PopulateCategories(pictureCategory, retCat); //population de la liste des catégories
 
    const separator = document.createElement('hr'); //ligne séparatrice
    separator.classList.add('separator');
@@ -383,7 +378,7 @@ async function ModalAddPicture(){ //Création de la modale d'upload photo
    modal.appendChild(form);
    document.body.appendChild(modal);
 }
-async function GetCategories(){
+async function GetCategories(){ //GET des catégories 
    const token = localStorage.getItem("Soblutoken");
    try{
       const response = await fetch("http://localhost:5678/api/categories", {
@@ -400,7 +395,7 @@ async function GetCategories(){
    }
    
 }
-function PopulateCategories(pictureCategory, data){
+function PopulateCategories(pictureCategory, data){ //affecte les différentes catégories dans la liste du select pour la création
    pictureCategory.options.add(new Option("", ''));
    data.forEach((item) => {
       pictureCategory.options.add(new Option(item.name, item.id));
@@ -443,7 +438,6 @@ async function SendPicture(cache, modal){ // POST envoi avec tous les éléments
 
       cache.remove();
       modal.remove();
-      
    }
    catch (error){
       console.log(error);
@@ -488,8 +482,7 @@ function ChangeEventUpload(pictureContainer, imageUploaded){ //met une image dan
       reader.readAsDataURL(pictureContainer.files[0]);
    }
 }
-
-function PopulateFilters(category, data){//génération des boutons des filtres
+function PopulateFilters(category, data){ //génération des boutons des filtres
    const filterContainer = document.querySelector(".filter-container");
    category.forEach((item)=>{
       let filter = document.createElement('button');
@@ -507,8 +500,3 @@ function PopulateFilters(category, data){//génération des boutons des filtres
    filterContainer.appendChild(filter);
    });
 }
-
-
-
-   
-
